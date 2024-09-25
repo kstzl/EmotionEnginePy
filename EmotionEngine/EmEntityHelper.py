@@ -1,1 +1,0 @@
-def expose_entity(entity_name: str, entity_class: any): pass

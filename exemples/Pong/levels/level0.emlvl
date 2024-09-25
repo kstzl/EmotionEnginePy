@@ -1,0 +1,16 @@
+entities:
+    - name: GameController
+      class: GameController
+
+    - name: Ball
+      class: Ball
+      pos_x: 100
+      pos_y: 100
+
+    - name: LeftPaddle
+      class: Paddle
+      paddle_type: left
+      
+    - name: RightPaddle
+      class: Paddle
+      paddle_type: right
