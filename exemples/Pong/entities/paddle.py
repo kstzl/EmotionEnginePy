@@ -14,12 +14,12 @@ class Paddle(EmEntity):
         self.paddle_type: str = creation_data["paddle_type"]
 
     def on_begin_play(self):
-        helper = self.get_helper()
+        helper = self.retrieve_helper()
 
         y_center = helper.get_window_height() // 2
 
         if self.paddle_type == "left":
-            self.get_pos().x = 90
+            self.get_pos().x = 30
 
         elif self.paddle_type == "right":
             self.get_pos().x = helper.get_window_width() - 30 - self.w

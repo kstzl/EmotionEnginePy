@@ -9,9 +9,10 @@ from typing import List
 
 from EmotionEngine.entity.EmEntitiesManager import EmEntitiesManager
 from EmotionEngine.entity.EmEntitiesFactory import EmEntityFactory
-from EmotionEngine.EmWindowManager import EmWindowManager
 from EmotionEngine.entity.EmEntity import EmEntity
 from EmotionEngine.entity.EmEntityHelper import EmEntityHelper
+from EmotionEngine.EmWindowManager import EmWindowManager
+from EmotionEngine.EmKeyboardManager import EmKeyboardManager
 
 # Initialize pygame
 pygame.init()
@@ -35,6 +36,7 @@ class EmEngine:
         self.__window_manager = EmWindowManager(
             width=window_width, height=window_height
         )
+        self.__keyboard_manager = EmKeyboardManager()
 
         self.__clock = pygame.time.Clock()
         self.__running = False
@@ -67,7 +69,8 @@ class EmEngine:
             )
 
             for entity in instanciated_entities:
-                entity.on_tick(dt)
+                if not entity.is_frozen():
+                    entity.on_tick(dt)
 
             self.__window_manager.fill_screen((0, 0, 0))
 
@@ -75,32 +78,6 @@ class EmEngine:
 
             for entity in instanciated_entities:
                 entity.on_draw(current_surface)
-
-            for entity_a in instanciated_entities:
-
-                at_least_one_collision = False
-
-                for entity_b in instanciated_entities:
-                    if entity_a is not entity_b:
-                        if entity_a.collide_with(entity_b):
-                            at_least_one_collision = True
-
-                bbox = entity_a.get_bounding_box()
-
-                x = entity_a.get_pos().x
-                y = entity_a.get_pos().y
-
-                pygame.draw.rect(
-                    current_surface,
-                    (255, 0, 0) if at_least_one_collision else (150, 0, 0),
-                    (
-                        x + bbox.left,
-                        y + bbox.bottom,
-                        bbox.right,
-                        bbox.top,
-                    ),
-                    2,
-                )
 
             pygame.display.flip()
 
@@ -128,6 +105,7 @@ class EmEngine:
         new_helper = EmEntityHelper(
             window_manager=self.__window_manager,
             entities_manager=self.__entities_manager,
+            keyboard_manager=self.__keyboard_manager,
         )
 
         entity_instance.set_entity_id(self.__entities_manager.count())

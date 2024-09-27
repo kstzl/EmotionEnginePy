@@ -11,7 +11,7 @@ class EmEntity:
         self.__entity_name: str = None
         self.__helper: EmEntityHelper = None
         self.__pos = EmVector2(0, 0)
-        self.__data = creation_data
+        self.__frozen = False
 
     def set_entity_id(self, new_entity_id: int):
         assert self.__entity_id is None
@@ -29,7 +29,7 @@ class EmEntity:
         assert self.__helper is None
         self.__helper = new_helper
 
-    def get_helper(self) -> EmEntityHelper:
+    def retrieve_helper(self) -> EmEntityHelper:
         assert self.__helper is not None
         return self.__helper
 
@@ -67,3 +67,9 @@ class EmEntity:
         b = other.get_positioned_bounding_box()
 
         return a.intersects(b)
+
+    def is_frozen(self) -> bool:
+        return self.__frozen
+
+    def set_frozen(self, new_frozen: bool):
+        self.__frozen = new_frozen

@@ -6,6 +6,8 @@ entities:
       class: Ball
       pos_x: 100
       pos_y: 100
+      default_speed: 5
+      max_speed: 12
 
     - name: LeftPaddle
       class: Paddle

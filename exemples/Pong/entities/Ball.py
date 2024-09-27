@@ -1,7 +1,10 @@
 import pygame
+import random
+import math
 
 from EmotionEngine.collisions.AABB import AABB
 from EmotionEngine.entity.EmEntity import EmEntity
+from EmotionEngine.entity.EmEntitiesManager import EmEntitiesManager
 from EmotionEngine.types.EmVector2 import EmVector2
 
 
@@ -9,20 +12,36 @@ class Ball(EmEntity):
     def __init__(self, creation_data: dict) -> None:
         super().__init__(creation_data)
 
-        self.velocity = EmVector2(0.5, 0.3)
-        self.speed = 0.5
+        self.angle_degrees = 0
 
-        self.size = 25
+        self.default_speed = int(creation_data["default_speed"])
+        self.max_speed = int(creation_data["max_speed"])
 
-        self.frozen = False
+        self.speed = self.default_speed
+        self.size = 10
+
+        self.left_paddle: EmEntity = None
+        self.right_paddle: EmEntity = None
+
+        self.set_frozen(True)
+
+    def reset_speed(self):
+        self.speed = self.default_speed
+
+    def increment_speed(self):
+        if self.speed < self.max_speed:
+            self.speed *= 1.1
+            print(self.speed)
 
     def on_begin_play(self):
-        helper = self.get_helper()
+        self.set_ball_position_to_center()
 
-        x_center = helper.get_window_width() // 2
-        y_center = helper.get_window_height() // 2
+        entities_manager: EmEntitiesManager = (
+            self.retrieve_helper().retrieve_entities_manager()
+        )
 
-        self.set_pos(EmVector2(x_center, y_center))
+        self.left_paddle = entities_manager.get_entity_by_name("LeftPaddle")
+        self.right_paddle = entities_manager.get_entity_by_name("RightPaddle")
 
     def on_draw(self, surface: pygame.display):
         pygame.draw.circle(
@@ -30,34 +49,41 @@ class Ball(EmEntity):
         )
 
     def on_tick(self, dt: float):
-        x, y = pygame.mouse.get_pos()
+        self.process_ball_collisions()
 
-        self.set_pos(EmVector2(x, y))
+        angle_rads = math.radians(self.angle_degrees)
+        velocity_vector = (
+            EmVector2(math.cos(angle_rads), math.sin(angle_rads)) * self.speed
+        )
 
-        return
-        if not self.frozen:
-            helper = self.get_helper()
-            x = self.get_pos().x
-            y = self.get_pos().y
-            w = helper.get_window_width()
-            h = helper.get_window_height()
+        self.set_pos(self.get_pos() + velocity_vector)
 
-            if x <= self.size or x >= w - self.size:
-                self.flip_x_vel()
+    def process_ball_collisions(self):
+        if self.collide_with(self.left_paddle):
+            self.angle_degrees = 180 - self.angle_degrees
+            self.get_pos().x += self.size // 2
+            self.increment_speed()
 
-            if y <= self.size or y >= h - self.size:
-                self.flip_y_vel()
+        if self.collide_with(self.right_paddle):
+            self.angle_degrees = 180 - self.angle_degrees
+            self.get_pos().x -= self.size // 2
+            self.increment_speed()
 
-            self.set_pos(self.get_pos() + self.velocity * dt * self.speed)
+    def set_ball_position_to_center(self):
+        helper = self.retrieve_helper()
+
+        x_center = helper.get_window_width() // 2
+        y_center = helper.get_window_height() // 2
+
+        self.set_pos(EmVector2(x_center, y_center))
+
+    def throw_ball(self):
+        self.angle_degrees = random.randrange(0, 360)
+        self.set_frozen(False)
+        self.set_ball_position_to_center()
 
     def get_bounding_box(self) -> AABB:
         return AABB(-self.size, -self.size, self.size, self.size)
-
-    def flip_x_vel(self):
-        self.velocity.x *= -1
-
-    def flip_y_vel(self):
-        self.velocity.y *= -1
 
 
 expose_entity("Ball", Ball)
