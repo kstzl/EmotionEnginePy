@@ -6,10 +6,23 @@ from dataclasses import dataclass
 
 @dataclass
 class EmVector2:
+    """
+    A class representing a 2D vector with x and y components.
+
+    This class provides various vector operations such as addition, subtraction,
+    multiplication by a scalar, and magnitude calculation.
+    """
+
     x: float
     y: float
 
     def to_tuple(self) -> Tuple[float, float]:
+        """
+        Converts the vector to a tuple representation.
+
+        Returns:
+            Tuple[float, float]: A tuple containing the x and y components of the vector.
+        """
         return (self.x, self.y)
 
     def __sub__(self, other):

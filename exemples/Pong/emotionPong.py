@@ -6,7 +6,10 @@ if __name__ == "__main__":
     current_directory = os.path.dirname(os.path.realpath(__file__))
 
     engineInstance = EmEngine(
-        working_directory=current_directory, window_width=950, window_height=700
+        working_directory=current_directory,
+        window_width=950,
+        window_height=700,
+        game_title="Emotion Pong",
     )
 
     engineInstance.initialize()

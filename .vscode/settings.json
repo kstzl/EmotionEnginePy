@@ -2,5 +2,12 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.formatOnSave": true
-    }
+    },
+    "pylint.args": [
+        "--disable=C0103",
+        "--disable=C0114",
+        "--disable=C0411",
+
+        "--extension-pkg-whitelist=pygame"
+    ]
 }
