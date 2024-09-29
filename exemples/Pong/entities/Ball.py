@@ -6,6 +6,7 @@ from EmotionEngine.collisions.AABB import AABB
 from EmotionEngine.entity.EmEntity import EmEntity
 from EmotionEngine.entity.EmEntitiesManager import EmEntitiesManager
 from EmotionEngine.types.EmVector2 import EmVector2
+from EmotionEngine.sound.EmSound import EmSound
 
 
 class Ball(EmEntity):
@@ -23,6 +24,10 @@ class Ball(EmEntity):
         self.left_paddle: EmEntity = None
         self.right_paddle: EmEntity = None
 
+        self.bounce_paddle_sound: EmSound = None
+        self.bounce_wall_sound: EmSound = None
+        self.throw_sound: EmSound = None
+
         self.set_frozen(True)
 
     def reset_speed(self):
@@ -34,11 +39,21 @@ class Ball(EmEntity):
             print(self.speed)
 
     def on_begin_play(self):
+        helper = self.retrieve_helper()
+
+        self.bounce_paddle_sound = helper.retrieve_sounds_manager().load_sound(
+            "se_bounce_paddle.wav"
+        )
+
+        self.bounce_wall_sound = helper.retrieve_sounds_manager().load_sound(
+            "se_bounce_wall.wav"
+        )
+
+        self.throw_sound = helper.retrieve_sounds_manager().load_sound("se_throw.wav")
+
         self.set_ball_position_to_center()
 
-        entities_manager: EmEntitiesManager = (
-            self.retrieve_helper().retrieve_entities_manager()
-        )
+        entities_manager: EmEntitiesManager = helper.retrieve_entities_manager()
 
         self.left_paddle = entities_manager.get_entity_by_name("LeftPaddle")
         self.right_paddle = entities_manager.get_entity_by_name("RightPaddle")
@@ -63,11 +78,21 @@ class Ball(EmEntity):
             self.angle_degrees = 180 - self.angle_degrees
             self.get_pos().x += self.size // 2
             self.increment_speed()
+            self.bounce_paddle_sound.play()
 
         if self.collide_with(self.right_paddle):
             self.angle_degrees = 180 - self.angle_degrees
             self.get_pos().x -= self.size // 2
             self.increment_speed()
+            self.bounce_paddle_sound.play()
+
+        if (
+            self.get_pos().y - self.size <= 0
+            or self.get_pos().y + self.size
+            >= self.retrieve_helper().get_window_height()
+        ):
+            self.angle_degrees = -self.angle_degrees
+            self.bounce_wall_sound.play()
 
     def set_ball_position_to_center(self):
         helper = self.retrieve_helper()
@@ -78,9 +103,10 @@ class Ball(EmEntity):
         self.set_pos(EmVector2(x_center, y_center))
 
     def throw_ball(self):
-        self.angle_degrees = random.randrange(0, 360)
+        self.angle_degrees = random.uniform(-45, 45) * random.choice([-1, 1])
         self.set_frozen(False)
         self.set_ball_position_to_center()
+        self.throw_sound.play()
 
     def get_bounding_box(self) -> AABB:
         return AABB(-self.size, -self.size, self.size, self.size)

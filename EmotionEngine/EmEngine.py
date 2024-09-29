@@ -13,10 +13,13 @@ from EmotionEngine.entity.EmEntity import EmEntity
 from EmotionEngine.entity.EmEntityHelper import EmEntityHelper
 from EmotionEngine.EmWindowManager import EmWindowManager
 from EmotionEngine.EmKeyboardManager import EmKeyboardManager
+from EmotionEngine.sound.EmSoundsManager import EmSoundsManager
+from EmotionEngine.text.EmFontsManager import EmFontsManager
 
 # Initialize pygame
 pygame.init()
 pygame.mixer.init()
+pygame.font.init()
 
 
 class EmEngine:
@@ -27,9 +30,10 @@ class EmEngine:
         window_height: int = 600,
     ) -> None:
 
-        self.__working_directory = working_directory
         self.__entities_directory = os.path.join(working_directory, "entities")
         self.__levels_directory = os.path.join(working_directory, "levels")
+        self.__sounds_directory = os.path.join(working_directory, "sounds")
+        self.__fonts_directory = os.path.join(working_directory, "fonts")
 
         self.__entities_factory = EmEntityFactory()
         self.__entities_manager = EmEntitiesManager()
@@ -37,9 +41,17 @@ class EmEngine:
             width=window_width, height=window_height
         )
         self.__keyboard_manager = EmKeyboardManager()
+        self.__sounds_manager = EmSoundsManager(engine_ref=self)
+        self.__fonts_manager = EmFontsManager(engine_ref=self)
 
         self.__clock = pygame.time.Clock()
         self.__running = False
+
+    def get_sounds_directory(self) -> str:
+        return self.__sounds_directory
+
+    def get_fonts_directory(self) -> str:
+        return self.__fonts_directory
 
     def log(self, *text: str):
         print("[EmotionEngine]", *text)
@@ -106,6 +118,8 @@ class EmEngine:
             window_manager=self.__window_manager,
             entities_manager=self.__entities_manager,
             keyboard_manager=self.__keyboard_manager,
+            sounds_manager=self.__sounds_manager,
+            fonts_manager=self.__fonts_manager,
         )
 
         entity_instance.set_entity_id(self.__entities_manager.count())
