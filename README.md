@@ -9,7 +9,7 @@ git clone https://github.com/kstzl/EmotionEnginePy.git
 cd EmotionEnginePy
 python .\exemples\Pong\emotionPong.py
 ```
-![alt text](pong.png)
+![alt text](pong-example.gif)
 
 ## Development Status
 Emotion Engine is still under construction, and features may be added or modified as development progresses. It is a great tool for visualizing concepts, drawing, and testing ideas quickly. Your feedback and contributions are welcome!
